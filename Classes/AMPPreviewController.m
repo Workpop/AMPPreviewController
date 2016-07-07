@@ -122,7 +122,11 @@
     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
     
     NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
-        return [self destinationPathForURL:URL];
+        CFStringRef mimeType = (__bridge CFStringRef)[response MIMEType];
+        CFStringRef uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, mimeType, NULL);
+        CFStringRef extension = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassFilenameExtension);
+        NSString *filename = [NSString stringWithFormat:@"%@.%@", [URL lastPathComponent], extension];
+        return [self destinationPathForURL:filename];
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
         if (!error) {
 //            NSLog(@"File downloaded to: %@", filePath);
