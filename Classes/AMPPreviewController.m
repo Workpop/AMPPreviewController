@@ -87,7 +87,7 @@
         
         id <AMPPreviewItem> item = (id <AMPPreviewItem>)self.previewItem;
         NSURL *suggestedLocalURL = [self destinationPathForURL:[item remoteUrl]];
-        if ([[NSFileManager defaultManager] fileExistsAtPath:[suggestedLocalURL path]]) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:[suggestedLocalURL path]] && [suggestedLocalURL pathExtension].length) {
             item.previewItemURL = suggestedLocalURL;
             self.dataSource = self;
             [self reloadData];
@@ -129,8 +129,6 @@
         return [self destinationPathForURL:filename];
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
         if (!error) {
-//            NSLog(@"File downloaded to: %@", filePath);
-            
             if ([self.previewItem isKindOfClass:[AMPPreviewObject class]]) {
                 [(AMPPreviewObject *)self.previewItem setPreviewItemTitle:[response suggestedFilename]];
             }
@@ -139,7 +137,6 @@
             self.dataSource = self;
             [self reloadData];
         }
-        
         if (self.finishDownloadBlock) {
             self.finishDownloadBlock(error);
         }
